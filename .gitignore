@@ -1,0 +1,38 @@
+# ==============================
+# SantéAI — .gitignore
+# ==============================
+
+# Script sensible à supprimer après usage (contient la logique de hash)
+setup.php
+
+# Variables d'environnement (si ajoutées plus tard)
+.env
+.env.local
+config/config.local.php
+
+# Dépendances PHP (si Composer est ajouté plus tard)
+vendor/
+composer.lock
+
+# Logs PHP
+*.log
+error.log
+php_error.log
+
+# Fichiers IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+
+# Système d'exploitation
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Fichiers temporaires
+*.tmp
+*.bak
+*.old
