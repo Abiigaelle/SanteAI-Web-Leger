@@ -49,6 +49,7 @@ class AuthController {
                     $_SESSION['avatar']         = $utilisateur['avatar'];
                     $_SESSION['pathologie']     = $utilisateur['pathologie'];
                     $_SESSION['medecin_nom']    = $utilisateur['medecin_nom'];
+                    $_SESSION['role']           = $utilisateur['role'] ?? 'patient';
 
                     // Redirection vers le dashboard
                     header('Location: ' . BASE_URL . '/index.php?page=dashboard');

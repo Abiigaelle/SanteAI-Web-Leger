@@ -1,0 +1,13 @@
+{
+  "name": "santeai",
+  "version": "1.0.0",
+  "description": "Plateforme web de suivi à distance pour patients atteints de la thyroïdite de Hashimoto",
+  "main": "index.php",
+  "scripts": {
+    "setup": "installer.bat",
+    "start": "node server.js",
+    "stop": "powershell -Command \"Start-Process 'C:\\xampp\\xampp_stop.exe' -WindowStyle Hidden\""
+  },
+  "author": "Abigaëlle SAIOVICI",
+  "license": "ISC"
+}

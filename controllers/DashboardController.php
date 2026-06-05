@@ -12,6 +12,7 @@ require_once BASE_PATH . '/models/Symptome.php';
 require_once BASE_PATH . '/models/Bilan.php';
 require_once BASE_PATH . '/models/Medicament.php';
 require_once BASE_PATH . '/models/Recommandation.php';
+require_once BASE_PATH . '/models/User.php';
 
 class DashboardController {
 
@@ -26,6 +27,18 @@ class DashboardController {
     // ----------------------------------------------------------
     public function index() {
         $userId = $_SESSION['utilisateur_id'];
+        $role   = $_SESSION['role'] ?? 'patient';
+
+        if ($role === 'admin') {
+            $userModel = new User($this->pdo);
+            $patients  = $userModel->obtenirSanteRecente();
+
+            require_once BASE_PATH . '/views/layout/header.php';
+            require_once BASE_PATH . '/views/layout/nav.php';
+            require_once BASE_PATH . '/views/dashboard/admin.php';
+            require_once BASE_PATH . '/views/layout/footer.php';
+            exit;
+        }
 
         // Instanciation des modèles nécessaires
         $symptomeModel      = new Symptome($this->pdo);

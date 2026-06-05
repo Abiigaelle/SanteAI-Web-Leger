@@ -28,40 +28,50 @@ $pageCourante = $_GET['page'] ?? 'dashboard';
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link <?= $pageCourante === 'symptomes' ? 'active' : '' ?>"
-                       href="index.php?page=symptomes&action=ajouter">
-                        <i class="bi bi-journal-text"></i> Mes symptômes
-                    </a>
-                </li>
+                <?php if (($_SESSION['role'] ?? 'patient') !== 'admin'): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?= $pageCourante === 'symptomes' ? 'active' : '' ?>"
+                           href="index.php?page=symptomes&action=ajouter">
+                            <i class="bi bi-journal-text"></i> Mes symptômes
+                        </a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link <?= $pageCourante === 'bilans' ? 'active' : '' ?>"
-                       href="index.php?page=bilans&action=historique">
-                        <i class="bi bi-graph-up"></i> Bilans biologiques
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= $pageCourante === 'bilans' ? 'active' : '' ?>"
+                           href="index.php?page=bilans&action=historique">
+                            <i class="bi bi-graph-up"></i> Bilans biologiques
+                        </a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link <?= $pageCourante === 'medicaments' ? 'active' : '' ?>"
-                       href="index.php?page=medicaments&action=liste">
-                        <i class="bi bi-capsule"></i> Médicaments
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= $pageCourante === 'medicaments' ? 'active' : '' ?>"
+                           href="index.php?page=medicaments&action=liste">
+                            <i class="bi bi-capsule"></i> Médicaments
+                        </a>
+                    </li>
+                <?php endif; ?>
 
             </ul>
 
             <!-- Partie droite : avatar + nom + déconnexion -->
             <div class="d-flex align-items-center gap-3">
                 <span class="navbar-text">
-                    <span class="avatar-nav"><?= htmlspecialchars($_SESSION['avatar'] ?? 'avatar1') === 'avatar1' ? '🌸' : (htmlspecialchars($_SESSION['avatar'] ?? '') === 'avatar2' ? '🌿' : (htmlspecialchars($_SESSION['avatar'] ?? '') === 'avatar3' ? '⭐' : (htmlspecialchars($_SESSION['avatar'] ?? '') === 'avatar4' ? '🦋' : '🌊'))) ?></span>
+                    <span class="avatar-nav">
+                        <?php if (($_SESSION['role'] ?? 'patient') === 'admin'): ?>
+                            🩺
+                        <?php else: ?>
+                            <?= htmlspecialchars($_SESSION['avatar'] ?? 'avatar1') === 'avatar1' ? '🌸' : (htmlspecialchars($_SESSION['avatar'] ?? '') === 'avatar2' ? '🌿' : (htmlspecialchars($_SESSION['avatar'] ?? '') === 'avatar3' ? '⭐' : (htmlspecialchars($_SESSION['avatar'] ?? '') === 'avatar4' ? '🦋' : '🌊'))) ?>
+                        <?php endif; ?>
+                    </span>
                     <strong><?= htmlspecialchars($_SESSION['prenom'] ?? '') ?></strong>
                 </span>
 
-                <a class="nav-link <?= $pageCourante === 'patient' ? 'active' : '' ?>"
-                   href="index.php?page=patient&action=profil">
-                    <i class="bi bi-person-gear"></i> Profil
-                </a>
+                <?php if (($_SESSION['role'] ?? 'patient') !== 'admin'): ?>
+                    <a class="nav-link <?= $pageCourante === 'patient' ? 'active' : '' ?>"
+                       href="index.php?page=patient&action=profil">
+                        <i class="bi bi-person-gear"></i> Profil
+                    </a>
+                <?php endif; ?>
 
                 <a class="btn btn-outline-danger btn-sm"
                    href="index.php?page=auth&action=logout">

@@ -36,3 +36,12 @@ ehthumbs.db
 *.tmp
 *.bak
 *.old
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
+
+# Dépendances Node (npm)
+node_modules/
+package-lock.json
+

@@ -15,9 +15,10 @@ define('BASE_URL', rtrim($scriptDir === DIRECTORY_SEPARATOR ? '' : $scriptDir, '
 
 // Forcer le cookie de session sur le bon chemin pour éviter les pertes de session
 // lors de la navigation entre les pages sous Apache/XAMPP
+session_name('SANTEAI_SESSID');
 session_set_cookie_params([
     'lifetime' => 0,          // Cookie de session (expire à la fermeture du navigateur)
-    'path'     => BASE_URL ?: '/',  // Même chemin que le site
+    'path'     => '/',         // Valable pour tout localhost pour éviter les pertes de session
     'httponly' => true,        // Cookie inaccessible depuis JavaScript (sécurité)
     'samesite' => 'Lax',       // Protection CSRF basique
 ]);
@@ -35,6 +36,8 @@ require_once BASE_PATH . '/config/database.php';
 $page   = $_GET['page']   ?? 'auth';
 $action = $_GET['action'] ?? 'index';
 
+
+
 // Sécurisation : seulement des lettres (empêche Path Traversal)
 $page   = preg_replace('/[^a-zA-Z]/', '', $page);
 $action = preg_replace('/[^a-zA-Z]/', '', $action);
@@ -48,12 +51,18 @@ if (!in_array($page, $pagesPubliques) && !isset($_SESSION['utilisateur_id'])) {
     exit;
 }
 
+// Mapping des pages singulier/pluriel pour les contrôleurs
+$nomPage = $page;
+if (!file_exists(BASE_PATH . '/controllers/' . ucfirst($nomPage) . 'Controller.php') && substr($nomPage, -1) === 's') {
+    $nomPage = substr($nomPage, 0, -1);
+}
+
 // Chargement du contrôleur
-$fichierControleur = BASE_PATH . '/controllers/' . ucfirst($page) . 'Controller.php';
+$fichierControleur = BASE_PATH . '/controllers/' . ucfirst($nomPage) . 'Controller.php';
 
 if (file_exists($fichierControleur)) {
     require_once $fichierControleur;
-    $nomControleur = ucfirst($page) . 'Controller';
+    $nomControleur = ucfirst($nomPage) . 'Controller';
     $controleur    = new $nomControleur($pdo);
 
     if (method_exists($controleur, $action)) {

@@ -93,4 +93,14 @@ class User {
         $stmt->execute([':email' => strtolower(trim($email))]);
         return $stmt->fetchColumn() > 0; // true si l'email existe déjà
     }
+
+    // ----------------------------------------------------------
+    // Récupère les données de santé récentes de tous les patients
+    // (utilise la vue SQL vue_sante_recente)
+    // ----------------------------------------------------------
+    public function obtenirSanteRecente() {
+        $sql  = "SELECT * FROM vue_sante_recente WHERE utilisateur_id NOT IN (SELECT id FROM utilisateurs WHERE role = 'admin')";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll();
+    }
 }
