@@ -29,19 +29,19 @@ class AuthController {
         $erreur = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email     = trim($_POST['email'] ?? '');
+            csrf_verifier();
+
+            $email      = trim($_POST['email'] ?? '');
             $motDePasse = $_POST['mot_de_passe'] ?? '';
 
-            // Validation : les deux champs sont obligatoires
             if (empty($email) || empty($motDePasse)) {
                 $erreur = 'Veuillez remplir tous les champs.';
             } else {
                 $utilisateur = $this->userModel->trouverParEmail($email);
 
-                // password_verify() compare le mot de passe saisi avec le hash en BDD
-                // C'est la seule méthode sécurisée : on ne peut pas déhasher bcrypt.
+                // password_verify compare la saisie au hash bcrypt stocké
+                // On ne peut pas déhasher bcrypt : c'est la seule méthode sécurisée
                 if ($utilisateur && password_verify($motDePasse, $utilisateur['mot_de_passe'])) {
-                    // Connexion réussie : on stocke les infos en session
                     $_SESSION['utilisateur_id'] = $utilisateur['id'];
                     $_SESSION['nom']            = $utilisateur['nom'];
                     $_SESSION['prenom']         = $utilisateur['prenom'];
@@ -51,17 +51,15 @@ class AuthController {
                     $_SESSION['medecin_nom']    = $utilisateur['medecin_nom'];
                     $_SESSION['role']           = $utilisateur['role'] ?? 'patient';
 
-                    // Redirection vers le dashboard
                     header('Location: ' . BASE_URL . '/index.php?page=dashboard');
                     exit;
                 } else {
-                    // Message volontairement vague pour ne pas révéler si l'email existe
+                    // Message volontairement vague (ne pas révéler si l'email existe)
                     $erreur = 'Email ou mot de passe incorrect.';
                 }
             }
         }
 
-        // Affichage de la vue login
         require_once BASE_PATH . '/views/auth/login.php';
     }
 
@@ -73,6 +71,8 @@ class AuthController {
         $succes  = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            csrf_verifier();
+
             $nom        = trim($_POST['nom'] ?? '');
             $prenom     = trim($_POST['prenom'] ?? '');
             $email      = trim($_POST['email'] ?? '');
@@ -81,14 +81,13 @@ class AuthController {
             $ddn        = $_POST['date_naissance'] ?? null;
             $sexe       = $_POST['sexe'] ?? 'F';
 
-            // Validations côté serveur (même si le HTML a des contrôles,
-            // on ne fait jamais confiance au navigateur seul)
+            // Validation côté serveur (on ne se fie pas aux contrôles HTML)
             if (empty($nom) || empty($prenom) || empty($email) || empty($mdp)) {
                 $erreur = 'Tous les champs obligatoires doivent être remplis.';
             } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $erreur = 'L\'adresse email n\'est pas valide.';
-            } elseif (strlen($mdp) < 6) {
-                $erreur = 'Le mot de passe doit contenir au moins 6 caractères.';
+            } elseif (strlen($mdp) < 8) {
+                $erreur = 'Le mot de passe doit contenir au moins 8 caractères.';
             } elseif ($mdp !== $mdpConfirm) {
                 $erreur = 'Les deux mots de passe ne correspondent pas.';
             } elseif ($this->userModel->emailExiste($email)) {
@@ -107,10 +106,8 @@ class AuthController {
     // logout() — Détruit la session et redirige vers le login
     // ----------------------------------------------------------
     public function logout() {
-        // session_unset() vide toutes les variables de session
-        session_unset();
-        // session_destroy() détruit le fichier de session côté serveur
-        session_destroy();
+        session_unset();   // vide toutes les variables de session
+        session_destroy(); // détruit le fichier de session côté serveur
         header('Location: ' . BASE_URL . '/index.php?page=auth&action=login');
         exit;
     }

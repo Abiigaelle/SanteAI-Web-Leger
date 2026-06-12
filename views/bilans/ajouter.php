@@ -34,6 +34,7 @@
                     </div>
 
                     <form method="POST" action="">
+                        <?= csrf_champ() ?>
 
                         <div class="row g-3">
 

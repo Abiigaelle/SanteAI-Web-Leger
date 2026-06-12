@@ -14,8 +14,7 @@ class Bilan {
 
     // ----------------------------------------------------------
     // CRÉER un nouveau bilan (CREATE du CRUD)
-    // Les valeurs nullable (tsh, t3_libre, etc.) peuvent être NULL
-    // si le patient n'a pas ce marqueur dans sa prise de sang.
+    // Les marqueurs non renseignés sont stockés NULL (et non zéro)
     // ----------------------------------------------------------
     public function ajouter($utilisateurId, array $data) {
         $sql = "INSERT INTO bilans_biologiques
@@ -26,16 +25,15 @@ class Bilan {
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            ':uid'      => (int)$utilisateurId,
-            ':date'     => $data['date_bilan'],
-            // Si le champ est vide, on stocke NULL (pas zéro)
-            ':tsh'      => !empty($data['tsh'])          ? (float)$data['tsh']          : null,
-            ':t3'       => !empty($data['t3_libre'])      ? (float)$data['t3_libre']      : null,
-            ':t4'       => !empty($data['t4_libre'])      ? (float)$data['t4_libre']      : null,
-            ':ferritine'=> !empty($data['ferritine'])     ? (float)$data['ferritine']     : null,
-            ':vitd'     => !empty($data['vitamine_d'])   ? (float)$data['vitamine_d']   : null,
-            ':tpo'      => !empty($data['anticorps_tpo']) ? (float)$data['anticorps_tpo'] : null,
-            ':notes'    => htmlspecialchars($data['notes'] ?? ''),
+            ':uid'       => (int)$utilisateurId,
+            ':date'      => $data['date_bilan'],
+            ':tsh'       => !empty($data['tsh'])          ? (float)$data['tsh']          : null,
+            ':t3'        => !empty($data['t3_libre'])      ? (float)$data['t3_libre']      : null,
+            ':t4'        => !empty($data['t4_libre'])      ? (float)$data['t4_libre']      : null,
+            ':ferritine' => !empty($data['ferritine'])     ? (float)$data['ferritine']     : null,
+            ':vitd'      => !empty($data['vitamine_d'])   ? (float)$data['vitamine_d']   : null,
+            ':tpo'       => !empty($data['anticorps_tpo']) ? (float)$data['anticorps_tpo'] : null,
+            ':notes'     => htmlspecialchars($data['notes'] ?? ''),
         ]);
 
         return $this->pdo->lastInsertId();
@@ -68,8 +66,7 @@ class Bilan {
 
     // ----------------------------------------------------------
     // LIRE les données pour le graphique d'évolution TSH
-    // On retourne les 10 derniers bilans, du plus ancien au plus récent
-    // pour que le graphique montre la progression chronologique.
+    // 10 derniers bilans, ordre chronologique (du plus ancien au plus récent)
     // ----------------------------------------------------------
     public function donneesGraphique($utilisateurId) {
         $sql  = "SELECT date_bilan, tsh, t4_libre, vitamine_d
@@ -84,7 +81,8 @@ class Bilan {
 
     // ----------------------------------------------------------
     // SUPPRIMER un bilan (DELETE du CRUD)
-    // Double condition pour la sécurité (même principe que Symptome)
+    // La double condition (id ET utilisateur_id) empêche la suppression
+    // des données d'un autre patient.
     // ----------------------------------------------------------
     public function supprimer($id, $utilisateurId) {
         $sql  = "DELETE FROM bilans_biologiques WHERE id = :id AND utilisateur_id = :uid";
@@ -94,6 +92,7 @@ class Bilan {
 
     // ----------------------------------------------------------
     // Vérifie si une valeur TSH est dans la norme (pour coloration dashboard)
+    // Norme de référence : 0,4 – 4,0 mUI/L
     // Retourne 'normal', 'eleve' ou 'bas'
     // ----------------------------------------------------------
     public static function analyserTSH($valeur) {

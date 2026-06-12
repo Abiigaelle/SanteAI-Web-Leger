@@ -20,12 +20,13 @@ class MedicamentController {
     // liste() — Affiche la liste des médicaments + formulaire d'ajout
     // ----------------------------------------------------------
     public function liste() {
-        $userId      = $_SESSION['utilisateur_id'];
-        $message     = '';
-        $erreur      = '';
+        $userId  = $_SESSION['utilisateur_id'];
+        $message = '';
+        $erreur  = '';
 
-        // Traitement du formulaire d'ajout
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_form'])) {
+            csrf_verifier();
+
             if ($_POST['action_form'] === 'ajouter') {
                 if (empty($_POST['nom'])) {
                     $erreur = 'Le nom du médicament est obligatoire.';
@@ -46,9 +47,10 @@ class MedicamentController {
 
     // ----------------------------------------------------------
     // prise() — Bascule l'état de prise d'un médicament (coché/décoché)
-    // Appelé via un lien ou un formulaire AJAX-like (redirection après)
     // ----------------------------------------------------------
     public function prise() {
+        csrf_verifier_get();
+
         $userId       = $_SESSION['utilisateur_id'];
         $medicamentId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -56,7 +58,6 @@ class MedicamentController {
             $this->medicamentModel->togglePrise($medicamentId, $userId);
         }
 
-        // Redirection vers la liste (pattern Post-Redirect-Get)
         header('Location: ' . BASE_URL . '/index.php?page=medicaments&action=liste');
         exit;
     }
@@ -65,6 +66,8 @@ class MedicamentController {
     // desactiver() — Archive un médicament (ne le supprime pas)
     // ----------------------------------------------------------
     public function desactiver() {
+        csrf_verifier_get();
+
         $userId       = $_SESSION['utilisateur_id'];
         $medicamentId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 

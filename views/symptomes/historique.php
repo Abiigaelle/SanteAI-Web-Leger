@@ -87,8 +87,8 @@
                                 </td>
 
                                 <td class="text-end">
-                                    <!-- Lien de suppression avec confirmation JavaScript -->
-                                    <a href="index.php?page=symptomes&action=supprimer&id=<?= $s['id'] ?>"
+                                    <!-- Lien de suppression avec confirmation JavaScript (Sécurisé CSRF) -->
+                                    <a href="index.php?page=symptomes&action=supprimer&id=<?= $s['id'] ?>&csrf_token=<?= csrf_token() ?>"
                                        class="btn btn-sm btn-outline-danger"
                                        onclick="return confirm('Supprimer cette saisie ?')">
                                         <i class="bi bi-trash"></i>

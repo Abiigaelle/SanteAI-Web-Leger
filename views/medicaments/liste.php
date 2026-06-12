@@ -26,6 +26,7 @@
             <div class="card-body p-4">
                 <h6 class="fw-bold mb-3">Nouveau médicament</h6>
                 <form method="POST" action="">
+                    <?= csrf_champ() ?>
                     <input type="hidden" name="action_form" value="ajouter">
                     <div class="row g-3">
 
@@ -104,15 +105,15 @@
 
                         <!-- Actions -->
                         <div class="d-flex gap-2">
-                            <!-- Bouton cocher/décocher la prise -->
-                            <a href="index.php?page=medicaments&action=prise&id=<?= $med['id'] ?>"
+                            <!-- Bouton cocher/décocher la prise (Sécurisé CSRF) -->
+                            <a href="index.php?page=medicaments&action=prise&id=<?= $med['id'] ?>&csrf_token=<?= csrf_token() ?>"
                                class="btn btn-sm <?= $med['pris'] ? 'btn-success' : 'btn-outline-primary' ?>">
                                 <i class="bi <?= $med['pris'] ? 'bi-check2' : 'bi-circle-fill' ?> me-1"></i>
                                 <?= $med['pris'] ? 'Pris ✓' : 'Marquer pris' ?>
                             </a>
 
-                            <!-- Archiver le médicament -->
-                            <a href="index.php?page=medicaments&action=desactiver&id=<?= $med['id'] ?>"
+                            <!-- Archiver le médicament (Sécurisé CSRF) -->
+                            <a href="index.php?page=medicaments&action=desactiver&id=<?= $med['id'] ?>&csrf_token=<?= csrf_token() ?>"
                                class="btn btn-sm btn-outline-danger"
                                onclick="return confirm('Archiver ce médicament ? Il ne sera plus suivi mais l\'historique est conservé.')">
                                 <i class="bi bi-archive"></i>

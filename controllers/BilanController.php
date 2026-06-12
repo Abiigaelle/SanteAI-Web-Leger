@@ -25,6 +25,8 @@ class BilanController {
         $erreur  = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            csrf_verifier();
+
             if (empty($_POST['date_bilan'])) {
                 $erreur = 'La date du bilan est obligatoire.';
             } else {
@@ -56,6 +58,8 @@ class BilanController {
     // supprimer() — Supprime un bilan (DELETE du CRUD)
     // ----------------------------------------------------------
     public function supprimer() {
+        csrf_verifier_get();
+
         $userId = $_SESSION['utilisateur_id'];
         $id     = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 

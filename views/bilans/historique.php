@@ -83,7 +83,8 @@
                                 </td>
 
                                 <td class="text-end">
-                                    <a href="index.php?page=bilans&action=supprimer&id=<?= $b['id'] ?>"
+                                    <!-- Sécurisé CSRF -->
+                                    <a href="index.php?page=bilans&action=supprimer&id=<?= $b['id'] ?>&csrf_token=<?= csrf_token() ?>"
                                        class="btn btn-sm btn-outline-danger"
                                        onclick="return confirm('Supprimer ce bilan ?')">
                                         <i class="bi bi-trash"></i>

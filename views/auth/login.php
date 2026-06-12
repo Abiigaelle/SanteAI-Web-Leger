@@ -37,6 +37,7 @@
                     <!-- method="POST" : les données sont envoyées dans le corps de la requête (sécurisé) -->
                     <!-- action="" : envoi vers la même page (le contrôleur traite le POST) -->
                     <form method="POST" action="">
+                        <?= csrf_champ() ?>
 
                         <div class="mb-3">
                             <label for="email" class="form-label fw-semibold">Adresse email</label>

@@ -5,6 +5,7 @@
   "main": "index.php",
   "scripts": {
     "setup": "installer.bat",
+    "dev": "node server.js",
     "start": "node server.js",
     "stop": "powershell -Command \"Start-Process 'C:\\xampp\\xampp_stop.exe' -WindowStyle Hidden\""
   },

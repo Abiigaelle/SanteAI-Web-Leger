@@ -21,6 +21,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <form method="POST" action="">
+                        <?= csrf_champ() ?>
 
                         <!-- ===== CHOIX D'AVATAR / ILLUSTRATION ===== -->
                         <!-- C'est la fonctionnalité de personnalisation graphique demandée -->

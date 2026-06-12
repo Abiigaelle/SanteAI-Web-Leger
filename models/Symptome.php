@@ -15,20 +15,18 @@ class Symptome {
     // ----------------------------------------------------------
     // CRÉER ou METTRE À JOUR la saisie du jour (INSERT ou UPDATE)
     // Logique : si une saisie existe déjà pour aujourd'hui, on la remplace.
-    // On vérifie d'abord l'existence, puis on INSERT ou UPDATE selon le cas.
     // ----------------------------------------------------------
     public function sauvegarder($utilisateurId, array $data) {
         $existant = $this->saisieAujourdhui($utilisateurId);
         $date = $data['date_saisie'] ?? date('Y-m-d');
 
-        // Conversion des checkboxes : si la case est cochée, le champ est présent dans $_POST
-        $douleurs  = isset($data['douleurs_articulaires']) ? 1 : 0;
+        // Une case cochée est présente dans $_POST, sinon le champ est absent
+        $douleurs   = isset($data['douleurs_articulaires']) ? 1 : 0;
         $brouillard = isset($data['brouillard_mental']) ? 1 : 0;
-        $froid     = isset($data['intolerances_froid']) ? 1 : 0;
-        $cheveux   = isset($data['chute_cheveux']) ? 1 : 0;
+        $froid      = isset($data['intolerances_froid']) ? 1 : 0;
+        $cheveux    = isset($data['chute_cheveux']) ? 1 : 0;
 
         if ($existant) {
-            // UPDATE : on met à jour la saisie du jour existante
             $sql = "UPDATE symptomes
                     SET niveau_fatigue = :fatigue, niveau_humeur = :humeur,
                         douleurs_articulaires = :douleurs, brouillard_mental = :brouillard,
@@ -36,7 +34,6 @@ class Symptome {
                         temperature = :temp, poids = :poids, notes = :notes
                     WHERE utilisateur_id = :uid AND date_saisie = :date";
         } else {
-            // INSERT : première saisie pour cette journée
             $sql = "INSERT INTO symptomes
                         (utilisateur_id, date_saisie, niveau_fatigue, niveau_humeur,
                          douleurs_articulaires, brouillard_mental, intolerances_froid,
@@ -64,19 +61,19 @@ class Symptome {
 
     // ----------------------------------------------------------
     // LIRE la saisie du jour (READ — pour pré-remplir le formulaire)
+    // Retourne false si aucune saisie aujourd'hui
     // ----------------------------------------------------------
     public function saisieAujourdhui($utilisateurId) {
         $sql  = "SELECT * FROM symptomes
                  WHERE utilisateur_id = :uid AND date_saisie = CURDATE()";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':uid' => (int)$utilisateurId]);
-        return $stmt->fetch(); // false si aucune saisie aujourd'hui
+        return $stmt->fetch();
     }
 
     // ----------------------------------------------------------
     // LIRE l'historique des symptômes (READ — page historique)
-    // bindValue() permet de passer un entier comme entier (PARAM_INT),
-    // ce qui est nécessaire pour LIMIT avec PDO.
+    // bindValue() avec PARAM_INT est obligatoire pour LIMIT avec PDO
     // ----------------------------------------------------------
     public function historique($utilisateurId, $limite = 30) {
         $sql  = "SELECT * FROM symptomes
@@ -91,9 +88,8 @@ class Symptome {
     }
 
     // ----------------------------------------------------------
-    // LIRE les données formatées pour les graphiques Chart.js
-    // On récupère les 30 derniers jours, triés du plus ancien au plus récent
-    // pour que les graphiques affichent l'évolution chronologiquement.
+    // LIRE les données pour les graphiques Chart.js
+    // 30 derniers jours, ordre chronologique (plus ancien → plus récent)
     // ----------------------------------------------------------
     public function donneesGraphique($utilisateurId) {
         $sql  = "SELECT date_saisie, niveau_fatigue, niveau_humeur
@@ -109,7 +105,7 @@ class Symptome {
     // ----------------------------------------------------------
     // SUPPRIMER une saisie (DELETE du CRUD)
     // La double condition (id ET utilisateur_id) empêche qu'un
-    // utilisateur puisse supprimer les données d'un autre.
+    // utilisateur supprime les données d'un autre.
     // ----------------------------------------------------------
     public function supprimer($id, $utilisateurId) {
         $sql  = "DELETE FROM symptomes WHERE id = :id AND utilisateur_id = :uid";

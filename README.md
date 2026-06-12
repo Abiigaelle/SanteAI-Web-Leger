@@ -75,6 +75,8 @@ Il ne modifie aucun fichier, c'est juste un raccourci.
 
 ### Étape 5 — Initialiser le compte de démonstration
 
+> Le script `setup.php` n'est pas versionné sur GitHub (il contient la logique de hash) : il est fourni sur le Google Drive du projet. Le placer à la racine avant cette étape.
+
 Aller sur : **http://localhost/santeai/setup.php**
 
 Un message "Setup réussi" doit s'afficher.  
@@ -96,12 +98,15 @@ Password : patient123
 
 ## Lancement au quotidien
 
-Une fois l'installation faite, pour relancer le projet :
+Une fois l'installation faite, une seule commande lance tout (démarre Apache + MySQL et ouvre le navigateur) :
 
-1. Ouvrir **XAMPP Control Panel** → Start **Apache** + **MySQL**
-2. Double-cliquer sur **`lancer.bat`** (ouvre le navigateur directement)
+```bash
+npm run dev
+```
 
-Ou accéder directement à **http://localhost/santeai/**
+> `CTRL+C` dans le terminal arrête proprement Apache et MySQL.
+
+**Alternative manuelle** (sans Node) : ouvrir **XAMPP Control Panel** → Start **Apache** + **MySQL**, puis double-cliquer sur **`lancer.bat`** ou aller sur **http://localhost/santeai/**.
 
 ---
 
@@ -138,14 +143,11 @@ SantéAI Léger/
 ├── assets/
 │   ├── css/style.css      ← Charte graphique
 │   └── js/main.js         ← Graphiques Chart.js
-├── database/
-│   └── santeai.sql        ← Schéma + triggers + données démo
-└── docs/
-    ├── DCU.md             ← Diagramme des Cas d'Utilisation
-    ├── documentation_technique.md
-    ├── documentation_utilisateur.md
-    └── registre_incidents.md
+└── database/
+    └── santeai.sql        ← Schéma + triggers + données démo
 ```
+
+> La documentation (`docs/`) et le script `setup.php` ne sont pas versionnés sur GitHub : ils sont fournis sur le Google Drive du projet.
 
 ---
 
@@ -189,7 +191,8 @@ SantéAI Léger/
 
 ## Documentation
 
-Tout le détail technique, les cas d'utilisation et le registre des incidents sont dans le dossier [`docs/`](docs/).
+La documentation complète (technique, utilisateur, diagramme des cas d'utilisation, registre des incidents) est disponible sur le **Google Drive** du projet :
+https://drive.google.com/drive/folders/1ok_Sly6azLQ7g8ZQ6cJf_ArkrIeuP_J3?usp=sharing
 
 ---
 

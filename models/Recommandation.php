@@ -1,14 +1,12 @@
 <?php
 // ============================================================
 // models/Recommandation.php
-// Modèle Recommandation + Algorithme d'analyse
+// Algorithme de recommandations
 //
-// L'algorithme de recommandations est léger et basé sur des règles
-// métier simples ("if/else"). C'est volontairement simple pour
-// rester explicable à l'oral du BTS SIO.
-// Les triggers SQL dans santeai.sql font une partie du travail
-// (analyse immédiate à l'insertion). Ce modèle complète avec une
-// analyse périodique à l'ouverture du dashboard.
+// Algorithme basé sur des règles métier simples (if/else).
+// Les triggers SQL dans santeai.sql génèrent des alertes immédiates
+// à l'insertion. Ce modèle complète avec une analyse périodique
+// à chaque ouverture du dashboard.
 // ============================================================
 
 class Recommandation {
@@ -20,11 +18,9 @@ class Recommandation {
     }
 
     // ----------------------------------------------------------
-    // ALGORITHME DE RECOMMANDATIONS
+    // Analyse les données récentes et génère les conseils manquants.
     // Appelé à chaque ouverture du dashboard.
-    // Analyse les données récentes et génère des conseils si nécessaire.
-    // Pour éviter les doublons, on vérifie si le conseil n'a pas déjà
-    // été généré dans la journée (ajouterSiAbsent).
+    // ajouterSiAbsent() évite les doublons (un conseil par jour max).
     // ----------------------------------------------------------
     public function genererRecommandations($utilisateurId) {
 
@@ -98,14 +94,11 @@ class Recommandation {
                 'conseil'
             );
         }
-
-        // TODO [EXTENSION FUTURE] : Ajouter une règle sur la variabilité du poids
-        // TODO [EXTENSION FUTURE] : Intégrer un score global de bien-être (0-100)
     }
 
     // ----------------------------------------------------------
-    // Méthode interne : ajoute un conseil uniquement s'il n'existe
-    // pas déjà pour la journée en cours (évite le spam de doublons).
+    // Ajoute un conseil uniquement s'il n'existe pas déjà aujourd'hui
+    // (évite le spam de doublons à chaque rechargement du dashboard)
     // ----------------------------------------------------------
     private function ajouterSiAbsent($utilisateurId, $message, $type) {
         $sql  = "SELECT id FROM recommandations
@@ -115,7 +108,6 @@ class Recommandation {
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':uid' => $utilisateurId, ':msg' => $message]);
 
-        // Si ce conseil n'existe pas encore aujourd'hui → on l'insère
         if (!$stmt->fetch()) {
             $sql  = "INSERT INTO recommandations (utilisateur_id, message, type)
                      VALUES (:uid, :msg, :type)";
@@ -139,9 +131,6 @@ class Recommandation {
         return $stmt->fetchAll();
     }
 
-    // ----------------------------------------------------------
-    // Marquer toutes les recommandations comme lues (UPDATE)
-    // ----------------------------------------------------------
     public function marquerLues($utilisateurId) {
         $sql  = "UPDATE recommandations SET lu = 1
                  WHERE utilisateur_id = :uid AND lu = 0";
@@ -149,9 +138,6 @@ class Recommandation {
         $stmt->execute([':uid' => (int)$utilisateurId]);
     }
 
-    // ----------------------------------------------------------
-    // LIRE tout l'historique des recommandations (READ)
-    // ----------------------------------------------------------
     public function toutes($utilisateurId) {
         $sql  = "SELECT * FROM recommandations
                  WHERE utilisateur_id = :uid

@@ -42,6 +42,7 @@
                     <?php endif; ?>
 
                     <form method="POST" action="">
+                        <?= csrf_champ() ?>
                         <div class="row g-3">
 
                             <div class="col-md-6">
@@ -78,15 +79,15 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label fw-semibold">Mot de passe * (min. 6 caractères)</label>
+                                <label class="form-label fw-semibold">Mot de passe * (min. 8 caractères)</label>
                                 <input type="password" class="form-control" name="mot_de_passe"
-                                       minlength="6" required>
+                                       minlength="8" required>
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label fw-semibold">Confirmer le mot de passe *</label>
                                 <input type="password" class="form-control" name="mot_de_passe_confirm"
-                                       minlength="6" required>
+                                       minlength="8" required>
                             </div>
 
                             <div class="col-12 mt-2">

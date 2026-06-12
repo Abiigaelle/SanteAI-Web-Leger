@@ -41,6 +41,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <form method="POST" action="">
+                        <?= csrf_champ() ?>
 
                         <!-- ===== NIVEAUX (Échelles 1-5) ===== -->
                         <div class="row g-4 mb-4">

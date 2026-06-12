@@ -4,13 +4,13 @@
 // Modèle Utilisateur — Toutes les requêtes sur la table 'utilisateurs'
 //
 // Dans le pattern MVC, le Modèle gère exclusivement l'accès aux données.
-// Il n'affiche rien, ne prend pas de décisions métier complexes.
+// Il n'affiche rien et n'applique pas de logique d'interface.
 // Il expose des méthodes simples que les contrôleurs appellent.
 // ============================================================
 
 class User {
 
-    private $pdo; // Instance PDO reçue depuis le contrôleur
+    private $pdo;
 
     public function __construct($pdo) {
         $this->pdo = $pdo;
@@ -18,9 +18,9 @@ class User {
 
     // ----------------------------------------------------------
     // CRÉER un nouvel utilisateur (CREATE du CRUD)
-    // Le mot de passe est hashé ici avant insertion.
-    // password_hash() utilise bcrypt, irréversible : on ne peut
-    // pas retrouver le mot de passe original depuis le hash.
+    // Le mot de passe est hashé avec bcrypt (PASSWORD_DEFAULT).
+    // password_hash() est irréversible : on ne peut pas retrouver
+    // le mot de passe original depuis le hash.
     // ----------------------------------------------------------
     public function creer($nom, $prenom, $email, $motDePasse, $dateNaissance = null, $sexe = 'F') {
         $hash = password_hash($motDePasse, PASSWORD_DEFAULT);
@@ -38,7 +38,7 @@ class User {
             ':sexe'   => $sexe,
         ]);
 
-        return $this->pdo->lastInsertId(); // Retourne l'ID du nouvel utilisateur
+        return $this->pdo->lastInsertId();
     }
 
     // ----------------------------------------------------------
@@ -48,11 +48,11 @@ class User {
         $sql  = "SELECT * FROM utilisateurs WHERE email = :email LIMIT 1";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':email' => strtolower(trim($email))]);
-        return $stmt->fetch(); // Retourne un tableau ou false si non trouvé
+        return $stmt->fetch();
     }
 
     // ----------------------------------------------------------
-    // LIRE un utilisateur par ID (READ — utilisé partout en session)
+    // LIRE un utilisateur par ID (READ — utilisé partout via la session)
     // ----------------------------------------------------------
     public function trouverParId($id) {
         $sql  = "SELECT * FROM utilisateurs WHERE id = :id LIMIT 1";
@@ -63,9 +63,7 @@ class User {
 
     // ----------------------------------------------------------
     // METTRE À JOUR le profil (UPDATE du CRUD)
-    // htmlspecialchars() protège contre les attaques XSS :
-    // si l'utilisateur tape "<script>alert(1)</script>", ça devient
-    // du texte inoffensif grâce à l'encodage des caractères spéciaux.
+    // htmlspecialchars() encode les caractères spéciaux pour éviter le XSS
     // ----------------------------------------------------------
     public function mettreAJour($id, array $data) {
         $sql = "UPDATE utilisateurs
@@ -85,18 +83,17 @@ class User {
     }
 
     // ----------------------------------------------------------
-    // Vérifie si un email est déjà pris (pour éviter les doublons à l'inscription)
+    // Vérifie si un email est déjà utilisé (pour éviter les doublons)
     // ----------------------------------------------------------
     public function emailExiste($email) {
         $sql  = "SELECT COUNT(*) FROM utilisateurs WHERE email = :email";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':email' => strtolower(trim($email))]);
-        return $stmt->fetchColumn() > 0; // true si l'email existe déjà
+        return $stmt->fetchColumn() > 0;
     }
 
     // ----------------------------------------------------------
-    // Récupère les données de santé récentes de tous les patients
-    // (utilise la vue SQL vue_sante_recente)
+    // Vue d'ensemble des patients pour l'espace admin (via la vue SQL)
     // ----------------------------------------------------------
     public function obtenirSanteRecente() {
         $sql  = "SELECT * FROM vue_sante_recente WHERE utilisateur_id NOT IN (SELECT id FROM utilisateurs WHERE role = 'admin')";

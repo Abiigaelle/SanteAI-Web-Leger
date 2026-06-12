@@ -2,8 +2,8 @@
 // ============================================================
 // controllers/SymptomeController.php
 // Contrôleur des symptômes — Saisie quotidienne et historique
-// Implémente le CRUD complet : CREATE (ajouter), READ (historique), DELETE (supprimer)
-// UPDATE est intégré dans ajouter() : si une saisie du jour existe, on la remplace.
+// CRUD complet : CREATE (ajouter), READ (historique), DELETE (supprimer)
+// L'UPDATE est intégré dans ajouter() : si une saisie du jour existe, on la remplace.
 // ============================================================
 
 require_once BASE_PATH . '/models/Symptome.php';
@@ -30,7 +30,8 @@ class SymptomeController {
         $saisieExistante = $this->symptomeModel->saisieAujourdhui($userId);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Validation : fatigue et humeur sont obligatoires
+            csrf_verifier();
+
             if (empty($_POST['niveau_fatigue']) || empty($_POST['niveau_humeur'])) {
                 $erreur = 'Veuillez indiquer votre niveau de fatigue et votre humeur.';
             } elseif ($_POST['niveau_fatigue'] < 1 || $_POST['niveau_fatigue'] > 5) {
@@ -52,7 +53,7 @@ class SymptomeController {
     }
 
     // ----------------------------------------------------------
-    // historique() — Affiche l'historique des saisies
+    // historique() — Affiche l'historique des saisies (60 derniers jours)
     // ----------------------------------------------------------
     public function historique() {
         $userId    = $_SESSION['utilisateur_id'];
@@ -69,6 +70,8 @@ class SymptomeController {
     // Action déclenchée via un lien GET avec l'ID de la saisie.
     // ----------------------------------------------------------
     public function supprimer() {
+        csrf_verifier_get();
+
         $userId = $_SESSION['utilisateur_id'];
         $id     = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 

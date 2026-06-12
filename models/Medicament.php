@@ -45,9 +45,7 @@ class Medicament {
 
     // ----------------------------------------------------------
     // LIRE les médicaments du jour avec leur statut de prise (READ)
-    // Utilise une jointure LEFT JOIN pour combiner la liste des
-    // médicaments avec les prises du jour.
-    // Si pris = NULL → le patient n'a pas encore coché (= non pris)
+    // LEFT JOIN : si aucune ligne dans prises_medicaments, COALESCE renvoie 0 (= non pris)
     // ----------------------------------------------------------
     public function listeDuJour($utilisateurId) {
         $sql = "SELECT m.id, m.nom, m.dosage, m.moment_prise,
@@ -67,11 +65,9 @@ class Medicament {
 
     // ----------------------------------------------------------
     // Basculer la prise du jour (cocher / décocher)
-    // Si une prise n'existe pas encore → INSERT
-    // Si elle existe → on inverse la valeur (pris = 1-pris)
+    // Si aucune entrée pour aujourd'hui → INSERT, sinon on inverse (pris = 1-pris)
     // ----------------------------------------------------------
     public function togglePrise($medicamentId, $utilisateurId) {
-        // Chercher si une entrée existe pour aujourd'hui
         $sql  = "SELECT id, pris FROM prises_medicaments
                  WHERE medicament_id = :mid AND utilisateur_id = :uid AND date_prise = CURDATE()";
         $stmt = $this->pdo->prepare($sql);
@@ -79,13 +75,10 @@ class Medicament {
         $existant = $stmt->fetch();
 
         if ($existant) {
-            // Inverser la valeur : 0 → 1, 1 → 0
-            $sql  = "UPDATE prises_medicaments SET pris = :pris
-                     WHERE id = :id";
+            $sql  = "UPDATE prises_medicaments SET pris = :pris WHERE id = :id";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':pris' => $existant['pris'] ? 0 : 1, ':id' => $existant['id']]);
         } else {
-            // Créer la prise pour aujourd'hui (cochée)
             $sql  = "INSERT INTO prises_medicaments (medicament_id, utilisateur_id, date_prise, pris)
                      VALUES (:mid, :uid, CURDATE(), 1)";
             $stmt = $this->pdo->prepare($sql);
@@ -95,8 +88,7 @@ class Medicament {
 
     // ----------------------------------------------------------
     // DÉSACTIVER un médicament (UPDATE — on archive, on ne supprime pas)
-    // Bonne pratique : ne pas supprimer les données médicales,
-    // les archiver pour garder l'historique.
+    // Bonne pratique médicale : garder l'historique des traitements.
     // ----------------------------------------------------------
     public function desactiver($id, $utilisateurId) {
         $sql  = "UPDATE medicaments SET actif = 0 WHERE id = :id AND utilisateur_id = :uid";
@@ -105,8 +97,8 @@ class Medicament {
     }
 
     // ----------------------------------------------------------
-    // Calcule le taux d'adhérence (pourcentage de prises effectuées)
-    // sur les 7 derniers jours — utilisé pour le dashboard
+    // Calcule le taux d'adhérence (% de prises effectuées sur 7 jours)
+    // Utilisé pour le widget du dashboard
     // ----------------------------------------------------------
     public function tauxAdherence($utilisateurId) {
         $sql = "SELECT

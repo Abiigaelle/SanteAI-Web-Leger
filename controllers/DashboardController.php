@@ -29,6 +29,7 @@ class DashboardController {
         $userId = $_SESSION['utilisateur_id'];
         $role   = $_SESSION['role'] ?? 'patient';
 
+        // L'admin voit la liste des patients au lieu de son propre suivi
         if ($role === 'admin') {
             $userModel = new User($this->pdo);
             $patients  = $userModel->obtenirSanteRecente();
@@ -41,9 +42,9 @@ class DashboardController {
         }
 
         // Instanciation des modèles nécessaires
-        $symptomeModel      = new Symptome($this->pdo);
-        $bilanModel         = new Bilan($this->pdo);
-        $medicamentModel    = new Medicament($this->pdo);
+        $symptomeModel       = new Symptome($this->pdo);
+        $bilanModel          = new Bilan($this->pdo);
+        $medicamentModel     = new Medicament($this->pdo);
         $recommandationModel = new Recommandation($this->pdo);
 
         // --- DONNÉES DU DASHBOARD ---
@@ -61,9 +62,8 @@ class DashboardController {
         $tauxAdherence = $medicamentModel->tauxAdherence($userId);
 
         // --- ALGORITHME DE RECOMMANDATIONS ---
-        // Analyse les données récentes et génère de nouveaux conseils si nécessaire.
-        // Les triggers SQL génèrent des alertes immédiates (à l'insertion),
-        // cet algorithme fait une analyse périodique à chaque connexion.
+        // Les triggers SQL génèrent des alertes à l'insertion.
+        // Cet algorithme fait une analyse complémentaire à chaque ouverture du dashboard.
         $recommandationModel->genererRecommandations($userId);
 
         // Récupération des recommandations non lues (max 5)
@@ -73,8 +73,7 @@ class DashboardController {
         $recommandationModel->marquerLues($userId);
 
         // --- DONNÉES POUR LES GRAPHIQUES CHART.JS ---
-        // On encode les données PHP en JSON pour les passer au JavaScript.
-        // json_encode() convertit un tableau PHP en chaîne JSON.
+        // json_encode() convertit les tableaux PHP en JSON pour les passer au JavaScript
 
         // Graphique 1 : Évolution fatigue/humeur sur 30 jours
         $donneesSymptomes = $symptomeModel->donneesGraphique($userId);
@@ -84,10 +83,9 @@ class DashboardController {
         $donneesBilans = $bilanModel->donneesGraphique($userId);
         $bilansJSON    = json_encode($donneesBilans);
 
-        // Analyse de la TSH pour l'affichage coloré
+        // Analyse de la TSH pour l'affichage coloré (normal / bas / élevé)
         $statutTSH = $dernierBilan ? Bilan::analyserTSH($dernierBilan['tsh']) : 'inconnu';
 
-        // --- AFFICHAGE ---
         require_once BASE_PATH . '/views/layout/header.php';
         require_once BASE_PATH . '/views/layout/nav.php';
         require_once BASE_PATH . '/views/dashboard/index.php';

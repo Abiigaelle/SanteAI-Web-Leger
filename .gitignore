@@ -2,10 +2,10 @@
 # SantéAI — .gitignore
 # ==============================
 
-# Script sensible à supprimer après usage (contient la logique de hash)
+# Script d'initialisation (contient la logique de hash) à supprimer après usage
 setup.php
 
-# Variables d'environnement (si ajoutées plus tard)
+# Variables d'environnement
 .env
 .env.local
 config/config.local.php
@@ -19,9 +19,10 @@ composer.lock
 error.log
 php_error.log
 
-# Fichiers IDE
+# Fichiers IDE / outils
 .vscode/settings.json
 .idea/
+.github/
 *.swp
 *.swo
 *.sublime-workspace
@@ -32,16 +33,21 @@ Thumbs.db
 desktop.ini
 ehthumbs.db
 
+# Fiches de révision personnelles (BTS SIO)
+ORAL_PREPARATION.md
+
 # Fichiers temporaires
 *.tmp
 *.bak
 *.old
 
-
-#Ignore vscode AI rules
-.github\instructions\codacy.instructions.md
-
 # Dépendances Node (npm)
 node_modules/
 package-lock.json
 
+# ==============================
+# Documentation et notes personnelles
+# (gardées en local)
+# ==============================
+docs/
+ORAL_PREPARATION.md
